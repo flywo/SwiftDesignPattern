@@ -23,8 +23,6 @@ import UIKit
  缺点：
  1.建造者模式锁创建的产品一般具有较多的共同点，其组成部分相似，如果产品之间差异很大，则不适合该模式。
  2.如果产品内部变化复杂，可能导致需要定义很多具体创建者类来实现这种变化，导致系统变得很庞大。
- 
- 一句话理解：一个类生成的时候，需要传入一个建造者，生成方法会通过不同的建造者生成建造者对应需要的类。
  */
 
 
@@ -33,14 +31,13 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        let builder = ButtonBuilder(title: "按钮", rect: CGRect(x: 100, y: 100, width: view.frame.width-200, height: 30), isRound: true)
-        let btn = BuilderDirector.createButtonWithBuilder(builder: builder)
-        btn.addTarget(builder, action: #selector(buttonSelected(sender: )), for: .touchUpInside)
-        view.addSubview(btn)
-    }
-    
-    func buttonSelected(sender: UIButton) {
-        sender.isSelected = !sender.isSelected
+        let builder: PresionBuilder = FatBuilder()
+        let fatDirector = BuilderDirector(builder: builder)
+        fatDirector.buildPerson()
+        
+        let thin: PresionBuilder = ThinBuilder()
+        let thinDirector = BuilderDirector(builder: thin)
+        thinDirector.buildPerson()
     }
 
     override func didReceiveMemoryWarning() {

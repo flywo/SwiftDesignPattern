@@ -27,8 +27,6 @@ import UIKit
  类适配器：对于不支持多继承的语言，一次最多只能适配一个适配者类，而且目标抽象类只能为抽象类，不能为具体类，其使用有一定的局限性，不能将一个适配者类和它的子类都适配到目标接口
  
  对象适配器：与类适配器相比，想置换适配者类的方法就不容易，如果一定要置换掉适配者类的一个或多个方法，就只好先做一个适配者类的子类，将适配者类的方法置换掉，然后再把适配者类的子类当做真正的适配者进行适配，实现过程较为复杂。
- 
- 一句话理解：就是通过一个适配者类，中转不同匹配的类之间的联系
  */
 
 
@@ -37,18 +35,13 @@ class ViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        //对象适配
-        let person = Person(foot: "大长腿", name: "李雷")
-        let dog = Dog(leg: "狗腿", name: "汪星人")
-        let car = Car(driver: person)
-        car.driverShow()//李雷用大长腿在开车
+        let player: Player = Forwards(name: "姚明")
+        player.attack()
+        player.defense()
         
-        let car1 = Car(driver: DogAdpter.adapterDog(dog: dog))
-        car1.driverShow()//汪星人用狗腿在开车
-        
-        //类适配
-        Talk.talk(obj: person as AnyObject)//我会说话！
-        Talk.talk(obj: dog as AnyObject)//汪汪汪
+        let foreign: Player = Translator(name: "maidi")
+        foreign.attack()
+        foreign.defense()
     }
 
     override func didReceiveMemoryWarning() {

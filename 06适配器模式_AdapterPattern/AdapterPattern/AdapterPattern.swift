@@ -8,59 +8,69 @@
 
 import Foundation
 
-//车子，如果想要开着，那肯定得是人，但是某一天，一个条狗也在开车，那么狗想开车，怎么办呢，这时候，适配器模式就出现了。
-class Car {
+class Player {
     
-    var driver: Person
-    
-    init(driver: Person) {
-        self.driver = driver
-    }
-    
-    func driverShow() {
-        print("\(driver.name)用\(driver.foot)在开车")
-    }
-    
-}
-
-struct Person {
-    
-    var foot: String
     var name: String
     
-    static func say() {
-        print("我会说话！")
+    init(name: String) {
+        self.name = name
     }
+
+    func attack() {
+        print("attack失败")
+    }
+    
+    func defense() {
+        print("defense失败")
+    }
+    
 }
 
-struct Dog {
+
+class ForeignCenter {
     
-    var leg: String
     var name: String
     
-    static func say() {
-        print("汪汪汪")
+    init(name: String) {
+        self.name = name
     }
-}
-
-//适配器
-struct DogAdpter {
-    //将一个对象适配成另外一个对象
-    static func adapterDog(dog: Dog) -> Person {
-        let person = Person(foot: dog.leg, name: dog.name)
-        return person
-    }
-}
-
-class Talk {
     
-    static func talk(obj: AnyObject) {
-        
-        if obj is Person {
-            Person.say()
-        }else if obj is Dog {
-            Dog.say()
-        }
+    func foreignAttack() {
+        print("外国队员\(name)进攻")
+    }
+    
+    func foreignDefense() {
+        print("外国队员\(name)防守")
     }
 }
 
+
+class Forwards: Player {
+    override func attack() {
+        print("\(name)进攻")
+    }
+    
+    override func defense() {
+        print("\(name)防守")
+    }
+}
+
+
+class Translator: Player {
+    
+    var foreignCenter: ForeignCenter
+    
+    override init(name: String) {
+        self.foreignCenter = ForeignCenter(name: name)
+        super.init(name: name)
+    }
+    
+    override func attack() {
+        foreignCenter.foreignAttack()
+    }
+    
+    override func defense() {
+        foreignCenter.foreignDefense()
+    }
+    
+}
