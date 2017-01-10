@@ -1,6 +1,8 @@
 # Swfit-DesignPattern
 设计模式在Swift中的应用，使用的是Swift3.0。
 
+#行为类型模式
+
 ##1.Chain Of Responsibility责任链模式
 
 ##2.Command命令模式
