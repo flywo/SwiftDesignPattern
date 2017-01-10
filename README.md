@@ -9,73 +9,71 @@ import Foundation
 import UIKit
 
 protocol CashBase {
-//所有计算都要遵循该协议，实现该方法
-func acceptCash(cash: CGFloat) -> CGFloat
+    //所有计算都要遵循该协议，实现该方法
+    func acceptCash(cash: CGFloat) -> CGFloat
 }
-
 
 //正常
 class CashNormal: CashBase {
-func acceptCash(cash: CGFloat) -> CGFloat {
-return cash
+    func acceptCash(cash: CGFloat) -> CGFloat {
+        return cash
+    }
 }
-}
-
 
 //打折
 class CashRobate: CashBase {
 
-var moneyRebate: CGFloat
+    var moneyRebate: CGFloat
 
-init(rebate: CGFloat) {
-moneyRebate = rebate
-}
+    init(rebate: CGFloat) {
+        moneyRebate = rebate
+    }
 
-func acceptCash(cash: CGFloat) -> CGFloat {
-return moneyRebate * cash
-}
+    func acceptCash(cash: CGFloat) -> CGFloat {
+        return moneyRebate * cash
+    }
 }
 
 
 //减免
 class CashReturn: CashBase {
 
-var moneyReturn: CGFloat
+    var moneyReturn: CGFloat
 
-init(retur: CGFloat) {
-moneyReturn = retur
-}
+    init(retur: CGFloat) {
+        moneyReturn = retur
+    }
 
-func acceptCash(cash: CGFloat) -> CGFloat {
-return cash - moneyReturn
-}
+    func acceptCash(cash: CGFloat) -> CGFloat {
+        return cash - moneyReturn
+    }
 }
 
 
 enum CashType {
-case Normal
-case Robate
-case Return
+    case Normal
+    case Robate
+    case Return
 }
 
 class CashContext {
 
-var cashBase: CashBase
+    var cashBase: CashBase
 
-init(type: CashType) {
-switch type {
-case .Normal:
-cashBase = CashNormal()
-case .Robate:
-cashBase = CashRobate(rebate: 0.5)
-case .Return:
-cashBase = CashReturn(retur: 10)
-}
-}
+    init(type: CashType) {
+        switch type {
+        case .Normal:
+            cashBase = CashNormal()
+        case .Robate:
+            cashBase = CashRobate(rebate: 0.5)
+        case .Return:
+            cashBase = CashReturn(retur: 10)
+        }
+    }
 
-func getResult(money: CGFloat) -> CGFloat {
-return cashBase.acceptCash(cash: money)
-}
+    func getResult(money: CGFloat) -> CGFloat {
+        return cashBase.acceptCash(cash: money)
+    }
 }
 ```
 使用：
@@ -93,7 +91,181 @@ print("Robate结果：\(robate.getResult(money: 100))")
 
 ##02.装饰模式（Decorator），动态地给一个对象添加一些额外的职责，就增加功能来说，装饰模式比生成子类更为灵活。
 
+实现：
+```swift
+import Foundation
+
+
+protocol Phone {
+
+    func call() -> String
+
+    func video() -> String
+}
+
+
+class iPhone: Phone {
+
+    func call() -> String {
+        return "苹果打电话"
+    }
+
+    func video() -> String {
+        return "苹果看电影"
+    }
+}
+
+
+class PhoneDecorator: Phone {
+
+    var phone: Phone
+
+    init(phone: Phone) {
+        self.phone = phone
+    }
+
+    func call() -> String {
+        return phone.call()
+    }
+
+    func video() -> String {
+        return phone.video()
+    }
+}
+
+
+final class PhoneDecoratorNet: PhoneDecorator {
+
+    override func call() -> String {
+        return "流量-\(phone.call())"
+    }
+
+    override func video() -> String {
+        return "流量-\(phone.video())"
+    }
+}
+
+
+class PhoneDecoratorWifi: PhoneDecorator {
+
+    override func call() -> String {
+        return "WIFI-\(phone.call())"
+    }
+
+    override func video() -> String {
+        return "WIFI-\(phone.video())"
+    }
+}
+
+```
+使用：
+```swift
+let phone = iPhone()
+
+var decorator = PhoneDecorator(phone: phone)
+print(decorator.call())
+print(decorator.video())
+
+decorator = PhoneDecoratorNet(phone: phone)
+print(decorator.call())
+print(decorator.video())
+
+decorator = PhoneDecoratorWifi(phone: phone)
+print(decorator.call())
+print(decorator.video())
+```
+
 03.代理模式（Proxy），为其他对象提供一种代理以控制对这个对象的访问。
+
+实现：
+```swift
+import Foundation
+
+//虚拟代理
+protocol Action {
+
+    func run()
+    func cry()
+}
+
+
+class Children: Action {
+
+    func run() {
+        print("孩子跑了")
+    }
+
+    func cry() {
+        print("孩子哭了")
+    }
+}
+
+
+class Youth: Action {
+
+    lazy private var children: Children = Children()
+
+    func run() {
+        children.run()
+    }
+
+    func cry() {
+        children.cry()
+    }
+}
+
+
+//保护代理
+
+protocol Door {
+
+    func open()
+}
+
+
+class Child: Door {
+
+    func open() {
+        print("好的，马上来开门！")
+    }
+}
+
+
+class Parent: Door {
+
+    private var child: Child!
+
+    func haveChild(have: Bool) {
+
+        guard have else {
+            return
+        }
+        child = Child()
+    }
+
+    func open() {
+        guard child != nil else {
+            print("没有孩子，我自己来开门")
+            return
+        }
+        child.open()
+    }
+}
+
+```
+使用
+```swift
+//虚拟代理
+let virtual = Youth()
+virtual.run()
+virtual.cry()
+
+//保护代理
+let parent = Parent()
+parent.open()
+parent.haveChild(have: true)
+parent.open()
+```
 
 04.工厂方法模式（Factory Method），定义一个用于创建对象的接口，让子类决定实例化哪一个类。工厂方法使一个类的实例化延迟到其子类。
 
