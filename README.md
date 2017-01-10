@@ -1,9 +1,97 @@
 # Swfit-DesignPattern
 设计模式在Swift中的应用，使用的是Swift3.0。
 
-01.策略模式（Strategy），它定义了算法家族，分别封装起来，让它们之间可以互相替换，此模式让算法的变化，不会影响到使用算法的客户。
+##01.策略模式（Strategy），它定义了算法家族，分别封装起来，让它们之间可以互相替换，此模式让算法的变化，不会影响到使用算法的客户。
 
-02.装饰模式（Decorator），动态地给一个对象添加一些额外的职责，就增加功能来说，装饰模式比生成子类更为灵活。
+实现：
+```swift
+import Foundation
+import UIKit
+
+protocol CashBase {
+//所有计算都要遵循该协议，实现该方法
+func acceptCash(cash: CGFloat) -> CGFloat
+}
+
+
+//正常
+class CashNormal: CashBase {
+func acceptCash(cash: CGFloat) -> CGFloat {
+return cash
+}
+}
+
+
+//打折
+class CashRobate: CashBase {
+
+var moneyRebate: CGFloat
+
+init(rebate: CGFloat) {
+moneyRebate = rebate
+}
+
+func acceptCash(cash: CGFloat) -> CGFloat {
+return moneyRebate * cash
+}
+}
+
+
+//减免
+class CashReturn: CashBase {
+
+var moneyReturn: CGFloat
+
+init(retur: CGFloat) {
+moneyReturn = retur
+}
+
+func acceptCash(cash: CGFloat) -> CGFloat {
+return cash - moneyReturn
+}
+}
+
+
+enum CashType {
+case Normal
+case Robate
+case Return
+}
+
+class CashContext {
+
+var cashBase: CashBase
+
+init(type: CashType) {
+switch type {
+case .Normal:
+cashBase = CashNormal()
+case .Robate:
+cashBase = CashRobate(rebate: 0.5)
+case .Return:
+cashBase = CashReturn(retur: 10)
+}
+}
+
+func getResult(money: CGFloat) -> CGFloat {
+return cashBase.acceptCash(cash: money)
+}
+}
+```
+使用：
+```swift
+//使用不同的算法，获得不同的结果
+let context = CashContext(type: .Normal)
+print("Normal结果：\(context.getResult(money: 100))")
+
+let retur = CashContext(type: .Return)
+print("Retrun结果：\(retur.getResult(money: 100))")
+
+let robate = CashContext(type: .Robate)
+print("Robate结果：\(robate.getResult(money: 100))")
+```
+
+##02.装饰模式（Decorator），动态地给一个对象添加一些额外的职责，就增加功能来说，装饰模式比生成子类更为灵活。
 
 03.代理模式（Proxy），为其他对象提供一种代理以控制对这个对象的访问。
 
