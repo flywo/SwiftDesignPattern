@@ -468,9 +468,190 @@ Robot.creatRobot()
 
 ##08.建造者模式（Builder），将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。
 
+实现：
+```swift
+//创建对象需要的表示，需要用户自己定制
+struct LabelBuilder {
+
+    var text: String
+    var color: UIColor
+    var rect: CGRect
+}
+
+
+class LabelDirector {
+
+//对象的构建，需要传入表示
+    static func creatLableWithBuilder(builder: LabelBuilder) -> UILabel {
+
+        let label = UILabel(frame: builder.rect)
+        label.text = builder.text
+        label.textColor = builder.color
+        label.font = UIFont.systemFont(ofSize: 20)
+        label.textAlignment = .center
+        return label
+    }
+}
+```
+使用：
+```swift
+let builder = LabelBuilder(text: "按钮", color: .orange, rect: CGRect(x: 100, y: 100, width: view.frame.width-200, height: 30))
+//通过自定义标签的表示，用同一个构造方法构建标签
+let label = LabelDirector.creatLableWithBuilder(builder: builder)
+view.addSubview(label)
+```
+
 ##09.观察者模式（Observer），定义了一种一对多的依赖关系，让多个观察者对象同时监听某一个主题对象。这个主题对象在状态发生变化时，会通知所有观察者对象，使它们能够自动更新自己。
 
+实现：
+```swift
+import Foundation
+
+enum NoticeType {
+    case Lev1 //老板到公司门口了
+    case Lev2 //老板进来办公室了
+}
+
+
+protocol ObserverProtocol {
+//定义了一个协议，实现
+    func notice(type: NoticeType)
+}
+
+
+//公司前台小妹
+final class Reception {
+
+    var observers: [ObserverProtocol]?
+
+    func noticeLev1() {
+        noticeEveryOne(lev: .Lev1)
+    }
+
+    func noticeLev2() {
+        noticeEveryOne(lev: .Lev2)
+    }
+
+    private func noticeEveryOne(lev: NoticeType) {
+        for obj in observers! {
+            obj.notice(type: lev)
+        }
+    }
+}
+
+
+//好员工
+class Staff: ObserverProtocol {
+
+    func notice(type: NoticeType) {
+        print("员工\(String(describing: self))说：老板来了就来了呗，一直在专心工作")
+    }
+}
+
+
+//员工a
+final class StaffA: Staff {
+
+    override func notice(type: NoticeType) {
+        switch type {
+        case .Lev1:
+            print("员工\(String(describing: self))说：不怕，继续看动画。")
+        default:
+            print("员工\(String(describing: self))说：不怕，我是老板侄儿，他不会骂我的。")
+        }
+    }
+}
+
+
+//员工B
+final class StaffB: Staff {
+
+    override func notice(type: NoticeType) {
+        switch type {
+        case .Lev1:
+            print("员工\(String(describing: self))说：赶紧关了，打开Xcode。")
+        default:
+            print("员工\(String(describing: self))说：恩，这破电脑，现在才打开Xcode，还好老板一进来已经打开了。")
+        }
+    }
+}
+```
+使用：
+```swift
+let staff1 = Staff()
+let staff2 = StaffA()
+let staff3 = StaffB()
+let reception = Reception()
+reception.observers = [staff1, staff2, staff3]
+//公司员工123都关注前台小妹的通知，当老板快要进办公室时，小妹会通知所有人
+reception.noticeLev1()//老板到公司门口了，小妹发通知
+/*
+员工Observer.Staff说：老板来了就来了呗，一直在专心工作
+员工Observer.StaffA说：不怕，继续看动画。
+员工Observer.StaffB说：赶紧关了，打开Xcode。
+*/
+reception.noticeLev2()//老板进办公室了，小妹发通知
+/*
+员工Observer.Staff说：老板来了就来了呗，一直在专心工作
+员工Observer.StaffA说：不怕，我是老板侄儿，他不会骂我的。
+员工Observer.StaffB说：恩，这破电脑，现在才打开Xcode，还好老板一进来已经打开了。
+*/
+```
+
 ##10.抽象工厂模式（Abstract Factory），提供一个创建一系列相关或相互依赖对象的接口，而无需指定它们具体的类。
+
+实现：
+```swift
+import Foundation
+
+//产品
+protocol ProductProtocol {
+    var factory: String { get set }
+    func showYouself()
+}
+
+
+struct Television: ProductProtocol {
+    var factory: String
+    func showYouself() {
+        print("\(factory)生产的电视")
+    }
+}
+
+
+struct Refrigerator: ProductProtocol {
+    var factory: String
+    func showYouself() {
+        print("\(factory)生产的冰箱")
+    }
+}
+
+
+//工厂
+enum ProductType {
+    case Television, Refrigerator
+}
+
+
+class Factory {
+    static func createProduct(type: ProductType) -> ProductProtocol {
+        switch type {
+        case .Television:
+            return Television(factory: "工厂")
+        default:
+            return Refrigerator(factory: "工厂")
+        }
+    }
+}
+```
+使用：
+```swift
+//工厂类提供了生产所有产品的接口，使用者无需知道要生产的具体类，只需要告诉工厂要的产品类型即可
+let tv = Factory.createProduct(type: .Television)
+let bx = Factory.createProduct(type: .Refrigerator)
+tv.showYouself()//工厂生产的电视
+bx.showYouself()//工厂生产的冰箱
+```
 
 ##11.状态模式（State），当一个对象的内在状态改变时允许改变其行为，这个对象看起来像是改变了其类。
 
