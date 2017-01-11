@@ -8,6 +8,7 @@
 import Foundation
 import UIKit
 
+//定义了金钱的算法acceptcash，分别实现
 protocol CashBase {
     //所有计算都要遵循该协议，实现该方法
     func acceptCash(cash: CGFloat) -> CGFloat
@@ -80,13 +81,13 @@ class CashContext {
 ```swift
 //使用不同的算法，获得不同的结果
 let context = CashContext(type: .Normal)
-print("Normal结果：\(context.getResult(money: 100))")
+print("Normal结果：\(context.getResult(money: 100))")//Normal结果：100
 
 let retur = CashContext(type: .Return)
-print("Retrun结果：\(retur.getResult(money: 100))")
+print("Retrun结果：\(retur.getResult(money: 100))")//Retrun结果：90
 
 let robate = CashContext(type: .Robate)
-print("Robate结果：\(robate.getResult(money: 100))")
+print("Robate结果：\(robate.getResult(money: 100))")//Robate结果：50
 ```
 
 ##02.装饰模式（Decorator），动态地给一个对象添加一些额外的职责，就增加功能来说，装饰模式比生成子类更为灵活。
@@ -115,7 +116,7 @@ class iPhone: Phone {
     }
 }
 
-
+//父装饰器
 class PhoneDecorator: Phone {
 
     var phone: Phone
@@ -133,7 +134,7 @@ class PhoneDecorator: Phone {
     }
 }
 
-
+//增加流量功能
 final class PhoneDecoratorNet: PhoneDecorator {
 
     override func call() -> String {
@@ -145,7 +146,7 @@ final class PhoneDecoratorNet: PhoneDecorator {
     }
 }
 
-
+//增加wifi功能
 class PhoneDecoratorWifi: PhoneDecorator {
 
     override func call() -> String {
@@ -162,17 +163,18 @@ class PhoneDecoratorWifi: PhoneDecorator {
 ```swift
 let phone = iPhone()
 
+//装饰器增加了功能
 var decorator = PhoneDecorator(phone: phone)
-print(decorator.call())
-print(decorator.video())
+print(decorator.call())//苹果打电话
+print(decorator.video())//苹果看电影
 
 decorator = PhoneDecoratorNet(phone: phone)
-print(decorator.call())
-print(decorator.video())
+print(decorator.call())//流量-苹果打电话
+print(decorator.video())//流量-苹果看电影
 
 decorator = PhoneDecoratorWifi(phone: phone)
-print(decorator.call())
-print(decorator.video())
+print(decorator.call())//WIFI-苹果打电话
+print(decorator.video())//WIFI-苹果看电影
 ```
 
 ##03.代理模式（Proxy），为其他对象提供一种代理以控制对这个对象的访问。
@@ -255,25 +257,214 @@ class Parent: Door {
 ```
 使用
 ```swift
-//虚拟代理
+//虚拟代理，youth控制了child的行为
 let virtual = Youth()
-virtual.run()
-virtual.cry()
+virtual.run()//孩子跑了
+virtual.cry()//孩子哭了
 
-//保护代理
+//保护代理，对于控制孩子开门这个行为，增加了一个保护，如果没有孩子这个实例，则自己去开门
 let parent = Parent()
-parent.open()
+parent.open()//没有孩子，我自己来开门
 parent.haveChild(have: true)
-parent.open()
+parent.open()//好的，马上来开门
 ```
 
 ##04.工厂方法模式（Factory Method），定义一个用于创建对象的接口，让子类决定实例化哪一个类。工厂方法使一个类的实例化延迟到其子类。
 
+实现：
+```swift
+import Foundation
+
+//定义一个总的工厂类，让其子类决定创建出什么样的对象
+class Factory {
+    func createProduct() -> String {
+        return "电视"
+    }
+}
+
+//长虹子类决定只创建长虹电视
+class ChangHoneFactory: Factory {
+    override func createProduct() -> String {
+        return "长虹电视"
+    }
+}
+
+//海尔子类只创建海尔电视
+class HaierFactory: Factory {
+    override func createProduct() -> String {
+        return "海尔电视"
+    }
+}
+```
+使用：
+```swift
+//不同的工厂子类决定了要生成的实例
+var factory: Factory = ChangHoneFactory()
+print("创建出了:\(factory.createProduct())")//创建出了:长虹电视
+factory = HaierFactory()
+print("创建出了:\(factory.createProduct())")//创建出了:海尔电视
+```
+
 ##05.原型模式（Prototype），用原型实例指定创建对象的种类，并且通过拷贝这些原型创建新的对象。
+
+实现：
+```swift
+//定义了一个程序员原型，假设有一大群程序员，他们之间的区别就是姓名不同，其余都相同
+class Programmer {
+
+    var name: String?
+    var age: Int
+    var sex: String
+    var language: String
+
+    init(age: Int, sex: String, language: String) {
+        self.language = language
+        self.age = age
+        self.sex = sex
+    }
+
+//可以克隆自己
+    func clone() -> Programmer {
+        return Programmer(age: age, sex: sex, language: language)
+    }
+
+}
+```
+使用：
+```swift
+//从打印结果可以得出，韩梅梅我们只要克隆李雷，然后修改他的名字就可以了，无需重新创建
+let a = Programmer(age: 18, sex: "M", language: "swift")
+a.name = "李雷"
+print(dump(a))
+/*
+▿ Prototype.Programmer #0
+▿ name: Optional("李雷")
+- some: "李雷"
+- age: 18
+- sex: "M"
+- language: "swift"
+Prototype.Programmer
+*/
+let b = a.clone()
+b.name = "韩梅梅"
+print(dump(b))
+/*
+▿ Prototype.Programmer #0
+▿ name: Optional("韩梅梅")
+- some: "韩梅梅"
+- age: 18
+- sex: "M"
+- language: "swift"
+Prototype.Programmer
+*/
+```
 
 ##06.模板方法模式（Template Method），定义一个操作中的算法的骨架，而将一些步骤延迟到子类中。模板方法使得子类可以不改变一个算法的结构即可重定义该算法的某些特定步骤。
 
+定义：
+```swift
+
+import Foundation
+
+//定义了一套问题模板
+class Question {
+
+    final func question() {
+        print("如果有一天，不写程序了，你会去做什么？")
+        print("我会去：\(answer())")
+    }
+
+//默认是养猪
+    func answer() -> String {
+        return "养猪"
+    }
+}
+
+//子类修改answer方法来修改结果
+class PersonA: Question {
+
+    override func answer() -> String {
+        return "下海经商"
+    }
+}
+
+
+class PersonB: Question {
+
+    override func answer() -> String {
+        return "自己开公司"
+    }
+}
+```
+使用：
+```swift
+let s = Question()
+s.question()
+//如果有一天，不写程序了，你会去做什么？
+//我会去：养猪
+
+let a = PersonA()
+a.question()
+//如果有一天，不写程序了，你会去做什么？
+//我会去：下海经商
+
+let b = PersonB()
+b.question()
+//如果有一天，不写程序了，你会去做什么？
+//我会去：自己开公司
+```
+
 ##07.外观模式（Facade），为子系统中的一组接口提供一个一致的界面，此模式定义了一个高层接口，这个接口使得这一子系统更加容易使用。
+
+定义：
+```swift
+import Foundation
+
+class Robot {
+//只需要调用该接口即可，内部的子系统无需使用者依次调用
+    static func creatRobot() {
+        Head.createHead()
+        Body.createBody()
+        Arm.createArm()
+        Leg.createLeg()
+    }
+}
+
+
+class Head {
+    static func createHead() {
+        print("制造头")
+    }
+}
+
+class Body {
+    static func createBody() {
+        print("制造身体")
+    }
+}
+
+class Arm {
+    static func createArm() {
+        print("制造手臂")
+    }
+}
+
+class Leg {
+    static func createLeg() {
+        print("制造腿")
+    }
+}
+```
+使用：
+```swift
+Robot.creatRobot()
+/*
+制造头
+制造身体
+制造手臂
+制造腿
+*/
+```
 
 ##08.建造者模式（Builder），将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。
 
