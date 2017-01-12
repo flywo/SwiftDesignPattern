@@ -1,7 +1,7 @@
 # Swfit-DesignPattern
 设计模式在Swift中的应用，使用的是Swift3.0。
 
-<span id="jump"></span>
+<span id="jump">顶部</span>
 
 * [1.策略模式](#1)
 * [2.装饰模式](#2)
