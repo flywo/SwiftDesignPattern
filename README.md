@@ -1,7 +1,7 @@
 # Swfit-DesignPattern
 设计模式在Swift中的应用，使用的是Swift3.0。
 
-<span id="jump">顶部</span>
+<span id="100"></span>
 
 * [1.策略模式](#1)
 * [2.装饰模式](#2)
@@ -115,7 +115,7 @@ print("Retrun结果：\(retur.getResult(money: 100))")//Retrun结果：90
 let robate = CashContext(type: .Robate)
 print("Robate结果：\(robate.getResult(money: 100))")//Robate结果：50
 ```
-[回到顶部](#jump)
+[回到顶部](#100)
 <h1 id="2">2.装饰模式</h1>
 装饰模式（Decorator），动态地给一个对象添加一些额外的职责，就增加功能来说，装饰模式比生成子类更为灵活。
 
