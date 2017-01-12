@@ -687,12 +687,231 @@ tv.showYouself()//工厂生产的电视
 bx.showYouself()//工厂生产的冰箱
 ```
 [回到顶部](#jump)
-##11.状态模式（State），当一个对象的内在状态改变时允许改变其行为，这个对象看起来像是改变了其类。
+<h1 id="11">11.状态模式</h1>
+状态模式（State），当一个对象的内在状态改变时允许改变其行为，这个对象看起来像是改变了其类。
 
-##12.适配器模式（Adapter），将一个类的接口转换成客户希望的另外一个接口。Adapter 模式使得原本由于接口不兼容而不能一起工作的那些类可以一起工作。
+实现：
+```swift
+import Foundation
 
-##13.备忘录模式（Memento），在不破坏封装性的前提下，捕获一个对象的内部状态，并在该对象之外保存这个状态。这样以后就可将该对象恢复到原先保存的状态。
+enum MoodState {
+    case happy, sad, normal
+}
 
+//状态
+struct State {
+    var mood: MoodState
+}
+
+
+//一个程序员
+class Programmer {
+
+    var state: State
+
+    init(state: State) {
+        self.state = state
+    }
+
+    func programming() {
+        switch state.mood {
+        case .happy:
+            print("心情不错，开开心心的写程序")
+        case .sad:
+            print("心情糟糕，不想写程序")
+        case .normal:
+            print("心情正常，慢慢悠悠的写程序")
+        }
+    }
+}
+```
+使用：
+```swift
+//修改programmer的state状态，即修改了programmer的programming()的行为
+let happy = State(mood: .happy)
+let programmer = Programmer(state: happy)
+programmer.programming()//心情不错，开开心心的写程序
+
+let sad = State(mood: .sad)
+programmer.state = sad
+programmer.programming()//心情糟糕，不想写程序
+
+let normal = State(mood: .normal)
+programmer.state = normal
+programmer.programming()//心情正常，慢慢悠悠的写程序
+```
+[回到顶部](#jump)
+<h1 id="12">12.适配器模式</h1>
+适配器模式（Adapter），将一个类的接口转换成客户希望的另外一个接口。Adapter 模式使得原本由于接口不兼容而不能一起工作的那些类可以一起工作。
+
+定义：
+```swift
+//假如说游戏a中，asdw按钮分别代表游戏角色 左 下 右 上 移动，但是在游戏b中，asdw分别代表 左 蹲下 跳跃 右 的动作，此时，适配器模式就体现出用途了，游戏b写一个适配器即可使用asdw按键
+
+//游戏协议，分别定义出asdw四个键按下后需要实现的方法
+protocol AdapterProtocol {
+
+    func a()
+    func s()
+    func d()
+    func w()
+}
+
+//游戏对应的适配器
+class AdapterGameA: AdapterProtocol {
+    var game: GameA
+    init(game: GameA) {
+        self.game = game
+    }
+    func a() {
+        game.left()
+    }
+    func s() {
+        game.down()
+    }
+    func d() {
+        game.right()
+    }
+    func w() {
+        game.up()
+    }
+}
+
+class AdapterGameB: AdapterProtocol {
+    var game: GameB
+    init(game: GameB) {
+        self.game = game
+    }
+    func a() {
+        game.left()
+    }
+    func s() {
+        game.squat()
+    }
+    func d() {
+        game.right()
+    }
+    func w() {
+        game.jump()
+    }
+}
+
+//两款游戏
+class GameA {
+    func left() {
+        print("\(String(describing: self))左移动游戏角色")
+    }
+    func down() {
+        print("\(String(describing: self))下移动游戏角色")
+    }
+    func right() {
+        print("\(String(describing: self))右移动游戏角色")
+    }
+    func up() {
+        print("\(String(describing: self))上移动游戏角色")
+    }
+}
+
+
+class GameB {
+    func left() {
+        print("\(String(describing: self))左移动游戏角色")
+    }
+    func squat() {
+        print("\(String(describing: self))蹲下游戏角色")
+    }
+    func right() {
+        print("\(String(describing: self))右移动游戏角色")
+    }
+    func jump() {
+        print("\(String(describing: self))跳起游戏角色")
+    }
+}
+```
+使用：
+```swift
+//定义出游戏ab，分别指定适配器
+let gameA = GameA()
+let gameB = GameB()
+let adapterA = AdapterGameA(game: gameA)
+let adapterB = AdapterGameB(game: gameB)
+//游戏开始了，分别按下asdw按键
+adapterA.a()//Adapter.GameA左移动游戏角色
+adapterA.s()//Adapter.GameA下移动游戏角色
+adapterA.d()//Adapter.GameA右移动游戏角色
+adapterA.w()//Adapter.GameA上移动游戏角色
+adapterB.a()//Adapter.GameB左移动游戏角色
+adapterB.s()//Adapter.GameB蹲下游戏角色
+adapterB.d()//Adapter.GameB右移动游戏角色
+adapterB.w()//Adapter.GameB跳起游戏角色
+```
+[回到顶部](#jump)
+<h1 id="13">13.备忘录模式</h1>
+备忘录模式（Memento），在不破坏封装性的前提下，捕获一个对象的内部状态，并在该对象之外保存这个状态。这样以后就可将该对象恢复到原先保存的状态。
+
+定义：
+```swift
+
+import Foundation
+
+//假设一款游戏里，一个角色有生命，蓝量两个状态，当用户要打boss前，可以先备份一下，打之前状态，发现打不过时，可以重新开始，从头打BOSS
+
+struct RollState {
+    var life: Int
+    var blue: Int
+}
+
+class Roll {
+    var state: RollState
+    init(state: RollState) {
+        self.state = state
+    }
+    func saveState() -> RollState {
+        return state
+    }
+    func restoreState(state: RollState) {
+        self.state = state
+    }
+    func kill() {
+        state.life = 0
+        state.blue = 0
+    }
+}
+```
+使用：
+```swift
+let state = RollState(life: 100, blue: 100)//初始化角色
+let roll = Roll(state: state)
+
+let mementoState = roll.saveState()
+print(dump(roll))
+/*打印角色初始状态
+▿ Memento.Roll #0
+▿ state: Memento.RollState
+- life: 100
+- blue: 100
+Memento.Roll
+*/
+roll.kill()
+print(dump(roll))
+/*角色死亡状态
+▿ Memento.Roll #0
+▿ state: Memento.RollState
+- life: 0
+- blue: 0
+Memento.Roll
+*/
+roll.restoreState(state: mementoState)
+print(dump(roll))
+/*角色恢复后状态
+▿ Memento.Roll #0
+▿ state: Memento.RollState
+- life: 100
+- blue: 100
+Memento.Roll
+*/
+```
+[回到顶部](#jump)
 ##14.组合模式（Composite），将对象组合成树形结构以表示‘部分-整体’的层次结构。组合模式使得用户对单个对象和组合对象的使用具有一致性。
 
 ##15.迭代器模式（Iterator），提供一种方法顺序访问一个聚合对象中各个元素，而又不暴露该对象的内部表示。
