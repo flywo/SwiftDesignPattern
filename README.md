@@ -1,6 +1,6 @@
 # Swfit-DesignPattern # {#jump}
 设计模式在Swift中的应用，使用的是Swift3.0。
-
+<h1 id="jump"></h1>
 * [1.策略模式](#1)
 * [2.装饰模式](#2)
 * [3.代理模式](#3)
