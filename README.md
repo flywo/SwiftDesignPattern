@@ -1,6 +1,8 @@
 # Swfit-DesignPattern
 设计模式在Swift中的应用，使用的是Swift3.0。
 
+<span id="jump"></span>
+
 * [1.策略模式](#1)
 * [2.装饰模式](#2)
 * [3.代理模式](#3)
@@ -113,7 +115,7 @@ print("Retrun结果：\(retur.getResult(money: 100))")//Retrun结果：90
 let robate = CashContext(type: .Robate)
 print("Robate结果：\(robate.getResult(money: 100))")//Robate结果：50
 ```
-
+[回到顶部](#jump)
 <h1 id="2">2.装饰模式</h1>
 装饰模式（Decorator），动态地给一个对象添加一些额外的职责，就增加功能来说，装饰模式比生成子类更为灵活。
 
@@ -201,7 +203,7 @@ decorator = PhoneDecoratorWifi(phone: phone)
 print(decorator.call())//WIFI-苹果打电话
 print(decorator.video())//WIFI-苹果看电影
 ```
-
+[回到顶部](#jump)
 <h1 id="3">3.代理模式</h1>
 代理模式（Proxy），为其他对象提供一种代理以控制对这个对象的访问。
 
@@ -294,7 +296,7 @@ parent.open()//没有孩子，我自己来开门
 parent.haveChild(have: true)
 parent.open()//好的，马上来开门
 ```
-
+[回到顶部](#jump)
 <h1 id="4">4.工厂方法模式</h1>
 工厂方法模式（Factory Method），定义一个用于创建对象的接口，让子类决定实例化哪一个类。工厂方法使一个类的实例化延迟到其子类。
 
@@ -331,7 +333,7 @@ print("创建出了:\(factory.createProduct())")//创建出了:长虹电视
 factory = HaierFactory()
 print("创建出了:\(factory.createProduct())")//创建出了:海尔电视
 ```
-
+[回到顶部](#jump)
 <h1 id="5">5.原型模式</h1>
 原型模式（Prototype），用原型实例指定创建对象的种类，并且通过拷贝这些原型创建新的对象。
 
@@ -386,7 +388,7 @@ print(dump(b))
 Prototype.Programmer
 */
 ```
-
+[回到顶部](#jump)
 <h1 id="6">6.模板方法模式</h1>
 模板方法模式（Template Method），定义一个操作中的算法的骨架，而将一些步骤延迟到子类中。模板方法使得子类可以不改变一个算法的结构即可重定义该算法的某些特定步骤。
 
@@ -442,7 +444,7 @@ b.question()
 //如果有一天，不写程序了，你会去做什么？
 //我会去：自己开公司
 ```
-
+[回到顶部](#jump)
 <h1 id="7">7.外观模式</h1>
 外观模式（Facade），为子系统中的一组接口提供一个一致的界面，此模式定义了一个高层接口，这个接口使得这一子系统更加容易使用。
 
@@ -495,7 +497,7 @@ Robot.creatRobot()
 制造腿
 */
 ```
-
+[回到顶部](#jump)
 <h1 id="8">8.建造者模式</h1>
 建造者模式（Builder），将一个复杂对象的构建与它的表示分离，使得同样的构建过程可以创建不同的表示。
 
@@ -531,7 +533,7 @@ let builder = LabelBuilder(text: "按钮", color: .orange, rect: CGRect(x: 100, 
 let label = LabelDirector.creatLableWithBuilder(builder: builder)
 view.addSubview(label)
 ```
-
+[回到顶部](#jump)
 <h1 id="9">9.观察者模式</h1>
 观察者模式（Observer），定义了一种一对多的依赖关系，让多个观察者对象同时监听某一个主题对象。这个主题对象在状态发生变化时，会通知所有观察者对象，使它们能够自动更新自己。
 
@@ -629,7 +631,7 @@ reception.noticeLev2()//老板进办公室了，小妹发通知
 员工Observer.StaffB说：恩，这破电脑，现在才打开Xcode，还好老板一进来已经打开了。
 */
 ```
-
+[回到顶部](#jump)
 <h1 id="10">10.抽象工厂模式</h1>
 抽象工厂模式（Abstract Factory），提供一个创建一系列相关或相互依赖对象的接口，而无需指定它们具体的类。
 
@@ -685,7 +687,7 @@ let bx = Factory.createProduct(type: .Refrigerator)
 tv.showYouself()//工厂生产的电视
 bx.showYouself()//工厂生产的冰箱
 ```
-
+[回到顶部](#jump)
 ##11.状态模式（State），当一个对象的内在状态改变时允许改变其行为，这个对象看起来像是改变了其类。
 
 ##12.适配器模式（Adapter），将一个类的接口转换成客户希望的另外一个接口。Adapter 模式使得原本由于接口不兼容而不能一起工作的那些类可以一起工作。
