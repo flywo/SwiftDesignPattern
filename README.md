@@ -912,15 +912,298 @@ Memento.Roll
 */
 ```
 [回到顶部](#jump)
-##14.组合模式（Composite），将对象组合成树形结构以表示‘部分-整体’的层次结构。组合模式使得用户对单个对象和组合对象的使用具有一致性。
 
-##15.迭代器模式（Iterator），提供一种方法顺序访问一个聚合对象中各个元素，而又不暴露该对象的内部表示。
+<h1 id="14">14.组合模式</h1>
+组合模式（Composite），将对象组合成树形结构以表示‘部分-整体’的层次结构。组合模式使得用户对单个对象和组合对象的使用具有一致性。
 
-##16.单例模式（Singleton），保证一个类仅有一个实例，并提供一个访问它的全局访问点。
+定义：
+```swift
+import Foundation
 
-##17.桥接模式（Bridge），将抽象部分与它的实现部分分离，使它们都可以独立地变化。
+//画图案的协议
+protocol DrawProtocol {
+    func draw()
+}
 
-##18.命令模式（Command），将一个请求封装为一个对象，从而使你可用不同的请求对客户进行参数化；对请求排队或记录请求日志，以及支持可撤销的操作。
+class Circle: DrawProtocol {
+    func draw() {
+        print("我负责画圆")
+    }
+}
+
+class Square: DrawProtocol {
+    func draw() {
+        print("我负责画方形")
+    }
+}
+
+class Triangle: DrawProtocol {
+    func draw() {
+        print("我负责画三角形")
+    }
+}
+
+class Print: DrawProtocol {
+
+    var drawer = [DrawProtocol]()
+
+    func addDrawer(_ drawer: DrawProtocol...) {
+        self.drawer.append(contentsOf: drawer)
+    }
+
+    func draw() {
+        _ = drawer.map{$0.draw()}
+    }
+}
+```
+使用：
+```swift
+//单个对象可以单独使用draw函数，也可以组合到一起，使用组合后的draw
+let a = Circle()
+let b = Square()
+let c = Triangle()
+a.draw()//我负责画圆
+b.draw()//我负责画方形
+c.draw()//我负责画三角形
+let p = Print()
+p.addDrawer(a,b,c)
+p.draw()
+/*
+我负责画圆
+我负责画方形
+我负责画三角形
+*/
+```
+[回到顶部](#jump)
+<h1 id="15">15.迭代器模式</h1>
+迭代器模式（Iterator），提供一种方法顺序访问一个聚合对象中各个元素，而又不暴露该对象的内部表示。
+
+定义：
+```swift
+import Foundation
+
+//定义了一个算法，利用迭代器后，会依次输出结果
+struct Algorithm {
+    var index: Int
+}
+
+//定义了该算法的迭代器
+struct AlgorithmIterator: IteratorProtocol {
+
+    private var current = 1
+    var begin: Int
+
+    init(begin: Int) {
+        self.begin = begin
+    }
+    mutating func next() -> Algorithm? {
+        defer {
+            current += 1
+        }
+        return Algorithm(index: current * begin)
+    }
+}
+
+//扩展了该算法，增加一个迭代器方法
+extension Algorithm: Sequence {
+    func makeIterator() -> AlgorithmIterator {
+        return AlgorithmIterator(begin: index)
+    }
+}
+```
+使用：
+```swift
+let algorithm = Algorithm(index: 10)
+var iterator = algorithm.makeIterator()
+for _ in 1...10 {
+print((iterator.next()?.index)!)
+}
+/*打印结果：
+10
+20
+30
+40
+50
+60
+70
+80
+90
+100
+*/
+```
+[回到顶部](#jump)
+<h1 id="16">16.单例模式</h1>
+单例模式（Singleton），保证一个类仅有一个实例，并提供一个访问它的全局访问点。
+
+定义：
+```swift
+
+import Foundation
+
+
+class Singleton {
+
+    var index = 0
+
+    static let share = Singleton()
+    private init() {}
+}
+
+```
+使用：
+```swift
+//single是单例
+let single = Singleton.share
+print(single.index)//0
+single.index = 100
+print(single.index)//100
+//无论获取多少次，都是同一个实例
+print(Singleton.share.index)//100
+```
+
+[回到顶部](#jump)
+<h1 id="17">17.桥接模式</h1>
+桥接模式（Bridge），将抽象部分与它的实现部分分离，使它们都可以独立地变化。
+
+定义：
+```swift
+import Foundation
+
+//接口协议
+protocol InterfaceProtocol {
+    var app: RealizeProtocol {get set}
+    func open()
+}
+
+//实现协议
+protocol RealizeProtocol {
+    func appOpen()
+}
+
+//操作类
+class Control: InterfaceProtocol {
+    var app: RealizeProtocol
+    init(app: RealizeProtocol) {
+        self.app = app
+    }
+    func open() {
+        app.appOpen()
+    }
+}
+
+//地图
+class Map: RealizeProtocol {
+    func appOpen() {
+        print("打开地图，开始定位！")
+    }
+}
+
+//相机
+class Camera: RealizeProtocol {
+    func appOpen() {
+        print("打开摄像头，开始拍照！")
+    }
+}
+```
+使用：
+```swift
+let map = Map()
+let camera = Camera()
+//把对应app给控制类，运行控制类的抽象接口，则会运行app的接口实现
+let control = Control(app: map)
+control.open()//打开地图，开始定位！
+control.app = camera
+control.open()//打开摄像头，开始拍照！
+```
+
+[回到顶部](#jump)
+<h1 id="18">18.命令模式</h1>
+命令模式（Command），将一个请求封装为一个对象，从而使你可用不同的请求对客户进行参数化；对请求排队或记录请求日志，以及支持可撤销的操作。
+
+定义：
+```swift
+import Foundation
+
+
+enum DoorActionType {
+    case open, close, lock, unlock
+}
+
+
+//命令协议，命令需要实现execute方法
+protocol CommandProtocol {
+    func execute()
+}
+
+
+//门
+struct Door {
+    var name: String
+}
+
+
+//门可以执行的操作：开门，关门，上锁，解锁
+class DoorAction: CommandProtocol {
+
+    var actionType: DoorActionType
+    var door: Door
+
+    init(type: DoorActionType ,door: Door) {
+        actionType = type
+        self.door = door
+    }
+    func execute() {
+        switch actionType {
+        case .open:
+            print("\(door.name)执行开门命令！")
+        case .close:
+            print("\(door.name)执行关门命令！")
+        case .lock:
+            print("\(door.name)执行上锁命令！")
+        case .unlock:
+            print("\(door.name)执行解锁命令！")
+        }
+    }
+}
+
+
+//命令管理者
+class DoorManager {
+
+    var actions = [CommandProtocol]()
+//添加命令
+    func add(_ actions: CommandProtocol...) {
+        self.actions += actions
+    }
+//执行命令
+    func execute() {
+        _ = actions.map{$0.execute()}
+    }
+}
+```
+使用：
+```swift
+//实例化了一个门，定义了门的动作
+let door = Door(name: "客厅门")
+let open = DoorAction(type: .open, door: door)
+let close = DoorAction(type: .close, door: door)
+let lock = DoorAction(type: .lock, door: door)
+let unlock = DoorAction(type: .unlock, door: door)
+//实例化了门管理者
+let manager = DoorManager()
+//添加门的动作
+manager.add(open, close, lock, unlock)
+//执行添加了的命令
+manager.execute()
+/*
+客厅门执行开门命令！
+客厅门执行关门命令！
+客厅门执行上锁命令！
+客厅门执行解锁命令！
+*/
+```
+
+[回到顶部](#jump)
 
 ##19.职责链模式（Chain of Responsibility），使多个对象都有机会处理请求，从而避免请求的发送者和接收者之间的耦合关系。将这个对象连成一条链，并沿着这条链传递该请求，直到有一个对象处理它为止。
 
