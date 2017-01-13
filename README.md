@@ -1204,13 +1204,182 @@ manager.execute()
 ```
 
 [回到顶部](#jump)
+<h1 id="19">19.职责链模式</h1>
+职责链模式（Chain of Responsibility），使多个对象都有机会处理请求，从而避免请求的发送者和接收者之间的耦合关系。将这个对象连成一条链，并沿着这条链传递该请求，直到有一个对象处理它为止。
 
-##19.职责链模式（Chain of Responsibility），使多个对象都有机会处理请求，从而避免请求的发送者和接收者之间的耦合关系。将这个对象连成一条链，并沿着这条链传递该请求，直到有一个对象处理它为止。
+实现：
+```swift
+import Foundation
 
-##20.中介者模式（Mediator），用一个中介对象来封装一系列的对象交互。中介者使各对象不需要显式地相互引用，从而使其耦合松散，而且可以独立地改变它们之间的交互。
+//问题协议
+protocol QuestionProtocol {
+//指定自己回答不出来，下一个回答的人
+    var next: QuestionProtocol? {get set}
+//该方法用于问问题
+    func answerQuestion(question: String)
+}
 
-##21.享元模式（Flyweight），运用共享技术有效地支持大量细粒度的对象。
+struct Student: QuestionProtocol {
+    var name: String
+    var canAnswerQuestion: String
+    var next: QuestionProtocol?
+    func answerQuestion(question: String) {
+        switch question {
+        case canAnswerQuestion:
+            print("\(name)回答：1+1=2")
+        case canAnswerQuestion:
+            print("\(name)回答：1*2=2")
+        case canAnswerQuestion:
+            print("\(name)回答：2*2=4")
+        case canAnswerQuestion:
+            print("\(name)回答：3*2=6")
+        default:
+            if let next = next {
+                next.answerQuestion(question: question)
+            }else {
+                print("这个问题没人知道答案！")
+            }
+        }
+    }
+}
+```
+使用：
+```swift
+let stu1 = Student(name: "小明", canAnswerQuestion: "1+1", next: nil)
+let stu2 = Student(name: "小黄", canAnswerQuestion: "1*2", next: stu1)
+let stu3 = Student(name: "小芳", canAnswerQuestion: "2*2", next: stu2)
+let stu4 = Student(name: "小辉", canAnswerQuestion: "3*2", next: stu3)
 
-##22.解释器模式（Interpreter），给定一个语言，定义它的文法的一种表示，并定义一个解释器，这个解释器使用该表示来解释语言中的句子。
+//从4开始，自动依次调用，直到有人回答或者都没人回答结束
+stu4.answerQuestion(question: "3*2")//小辉回答：1+1=2
+stu4.answerQuestion(question: "2*2")//小芳回答：1+1=2
+stu4.answerQuestion(question: "1*2")//小黄回答：1+1=2
+stu4.answerQuestion(question: "1+1")//小明回答：1+1=2
+stu4.answerQuestion(question: "3*3")//这个问题没人知道答案！
+```
 
-##23.访问者模式（Visitor），表示一个作用于某对象结构中的各元素的操作。它使你可以在不改变各元素的类的前提下定义作用于这些元素的新操作。
+[回到顶部](#jump)
+<h1 id="20">20.中介者模式</h1>
+中介者模式（Mediator），用一个中介对象来封装一系列的对象交互。中介者使各对象不需要显式地相互引用，从而使其耦合松散，而且可以独立地改变它们之间的交互。
+
+实现：
+```swift
+import Foundation
+
+//制造协议
+protocol CreateProtocol {
+    var name: String {get set}
+    func create() -> Any
+}
+
+//钢铁
+struct Steel {
+    var name: String
+    var createFrom: String
+}
+
+//机器人结构体
+struct Robot {
+    var name: String
+    var steel: Steel
+    var createFrom: String
+}
+
+//优质造铁厂
+class SteelFactory: CreateProtocol {
+    var name: String
+    init(name: String) {
+        self.name = name
+    }
+    func create() -> Any {
+        return Steel(name: "优质钢材", createFrom: name)
+    }
+}
+
+//劣质造铁厂
+class SteelFactoryLow: CreateProtocol {
+    var name: String
+    init(name: String) {
+        self.name = name
+    }
+    func create() -> Any {
+        return Steel(name: "劣质钢材", createFrom: name)
+    }
+}
+
+//制造机器人的公司
+class RobotCompany: CreateProtocol {
+    var mediator: Mediator
+    var name: String
+    init(mediator: Mediator, name: String) {
+        self.name = name
+        self.mediator = mediator
+    }
+//机器人制造公司需要钢材，然后向中介者要钢材，中介者去向工厂要。中介者和工厂没有相互引用，工厂可以被替换。
+    func create() -> Any {
+        return Robot(name: "阿狸机器人", steel: mediator.needSteel(), createFrom: name)
+    }
+}
+
+//中介者
+class Mediator {
+    var steelFactory: CreateProtocol
+    init(stellFactory: SteelFactory) {
+        self.steelFactory = stellFactory
+    }
+//向中介者要钢材
+    func needSteel() -> Steel {
+        return steelFactory.create() as! Steel
+    }
+}
+```
+使用：
+```swift
+let factory = SteelFactory(name: "成都钢铁厂")
+let factoryLow = SteelFactoryLow(name: "劣质钢铁厂")
+let mediator = Mediator(stellFactory: factory)
+let company = RobotCompany(mediator: mediator, name: "成都机器人公司")
+//开始制造
+let robot = company.create() as! Robot
+print(robot.createFrom+"制造的机器人\(robot.name)，采用的是"+robot.steel.createFrom+"生产的"+robot.steel.name+"！")//成都机器人公司制造的机器人阿狸机器人，采用的是成都钢铁厂生产的优质钢材！
+//中介者更换了钢铁厂，钢铁厂和机器人公司是没有引用的
+
+mediator.steelFactory = factoryLow
+let robot1 = company.create() as! Robot
+print(robot1.createFrom+"制造的机器人\(robot1.name)，采用的是"+robot1.steel.createFrom+"生产的"+robot1.steel.name+"！")//成都机器人公司制造的机器人阿狸机器人，采用的是劣质钢铁厂生产的劣质钢材！
+```
+
+[回到顶部](#jump)
+<h1 id="21">21.享元模式</h1>
+享元模式（Flyweight），运用共享技术有效地支持大量细粒度的对象。
+
+实现：
+```swift
+```
+使用：
+```swift
+```
+
+[回到顶部](#jump)
+<h1 id="22">22.解释器模式</h1>
+解释器模式（Interpreter），给定一个语言，定义它的文法的一种表示，并定义一个解释器，这个解释器使用该表示来解释语言中的句子。
+
+实现：
+```swift
+```
+使用：
+```swift
+```
+
+[回到顶部](#jump)
+<h1 id="23">23.访问者模式</h1>
+访问者模式（Visitor），表示一个作用于某对象结构中的各元素的操作。它使你可以在不改变各元素的类的前提下定义作用于这些元素的新操作。
+
+实现：
+```swift
+```
+使用：
+```swift
+```
+
+[回到顶部](#jump)
