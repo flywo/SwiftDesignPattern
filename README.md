@@ -1355,9 +1355,52 @@ print(robot1.createFrom+"制造的机器人\(robot1.name)，采用的是"+robot1
 
 实现：
 ```swift
+import Foundation
+
+//假设有一家杂货店，一开始老板不知道卖什么，有人来买，马上就制造，进货后就会不会缺货，我们就可以使用享元模式，将有人买过的东西保存起来共享，再有人买直接拿出来就可以，不用再去进新的货。
+
+//商品
+struct Commodity: CustomStringConvertible {//CustomStringConvertible该协议能够使自定义输出实例的description
+    var commodity: String
+    var description: String {
+        get {
+            return "商品名称："+commodity
+        }
+    }
+}
+
+//杂货店
+class GroceryStore {
+//商品列表
+    private var list = [String: Commodity]()
+//mutating关键字作用：在方法中修改struct和enum变量，如果不加，会提示无法修改结构体成员
+    func buyCommodity(name: String) -> Commodity {
+//无货，制造，制造好后，放到list中共享
+        if !list.keys.contains(name) {
+            print("没有这个货，给你制造！")
+            list[name] = Commodity(commodity: name)
+        }else {
+            print("有货，直接给你拿！")
+        }
+        return list[name]!
+    }
+}
 ```
 使用：
 ```swift
+let shop = GroceryStore()
+let commodity1 = shop.buyCommodity(name: "电视")//没有电视，会去创建新的对象
+print(commodity1)
+/*
+没有这个货，给你制造！
+商品名称：电视
+*/
+let commodity2 = shop.buyCommodity(name: "电视")//已经有电视了，去共享的list中取
+print(commodity2)
+/*
+有货，直接给你拿！
+商品名称：电视
+*/
 ```
 
 [回到顶部](#jump)
@@ -1366,9 +1409,37 @@ print(robot1.createFrom+"制造的机器人\(robot1.name)，采用的是"+robot1
 
 实现：
 ```swift
+import Foundation
+
+//定义一种新的语法，用字符表示，解释"1+2"这个字符串的含义
+
+protocol Interpreter {
+//返回一个泛型Result
+    static func interpreter<Result>(input: String) -> Result
+}
+
+//整型解释器
+struct IntInterpreter: Interpreter {
+    internal static func interpreter<Result>(input: String) -> Result {
+        let arr = input.components(separatedBy: "+")
+        return (Int(arr.first!)! + Int(arr.last!)!) as! Result
+    }
+}
+
+//字符解析器
+struct StringInterpreter: Interpreter {
+    internal static func interpreter<Result>(input: String) -> Result {
+        let arr = input.components(separatedBy: "+")
+        return (arr.first! + arr.last!) as! Result
+    }
+}
 ```
 使用：
 ```swift
+let result: Int = IntInterpreter.interpreter(input: "14+14")
+print(result)//28
+let result2: String = StringInterpreter.interpreter(input: "14+14")
+print(result2)//1414
 ```
 
 [回到顶部](#jump)
@@ -1377,9 +1448,92 @@ print(robot1.createFrom+"制造的机器人\(robot1.name)，采用的是"+robot1
 
 实现：
 ```swift
+import Foundation
+
+//假设一个人要去访问朋友ABCD
+//访客协议
+protocol VisitorProtocol {
+    func visit(planet: FriendA)
+    func visit(planet: FriendB)
+    func visit(planet: FriendC)
+    func visit(planet: FriendD)
+}
+
+//朋友的协议
+protocol FriendProtocol {
+    func accept(vistor: VisitorProtocol)
+}
+
+//A
+class FriendA: FriendProtocol {
+    func accept(vistor: VisitorProtocol) {
+        vistor.visit(planet: self)
+    }
+}
+
+//B
+class FriendB: FriendProtocol {
+    func accept(vistor: VisitorProtocol) {
+        vistor.visit(planet: self)
+    }
+}
+
+//C
+class FriendC: FriendProtocol {
+    func accept(vistor: VisitorProtocol) {
+        vistor.visit(planet: self)
+    }
+}
+
+//D
+class FriendD: FriendProtocol {
+    func accept(vistor: VisitorProtocol) {
+        vistor.visit(planet: self)
+    }
+}
+
+//访客
+class Visitor: VisitorProtocol {
+    var address = ""
+    func visit(planet: FriendA) {
+        address = "访问了朋友A"
+    }
+    func visit(planet: FriendB) {
+        address = "访问了朋友B"
+    }
+    func visit(planet: FriendC) {
+        address = "访问了朋友C"
+    }
+    func visit(planet: FriendD) {
+        address = "访问了朋友D"
+    }
+}
 ```
 使用：
 ```swift
+//分别创建出朋友
+let friends: [FriendProtocol] = [FriendA(), FriendB(), FriendC(), FriendD()]
+//每个朋友都去访问
+let visitors = friends.map{ (friend: FriendProtocol) -> Visitor in
+let visitor = Visitor()
+//访问过后，自己的数据就变了
+friend.accept(vistor: visitor)
+return visitor
+}
+print(dump(visitors))
+/*
+▿ 4 elements
+▿ Visitor.Visitor #0
+- address: "访问了朋友A"
+▿ Visitor.Visitor #1
+- address: "访问了朋友B"
+▿ Visitor.Visitor #2
+- address: "访问了朋友C"
+▿ Visitor.Visitor #3
+- address: "访问了朋友D"
+[Visitor.Visitor, Visitor.Visitor, Visitor.Visitor, Visitor.Visitor]
+*/
+*/
 ```
 
 [回到顶部](#jump)
