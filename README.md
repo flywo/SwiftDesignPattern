@@ -1533,7 +1533,6 @@ print(dump(visitors))
 - address: "访问了朋友D"
 [Visitor.Visitor, Visitor.Visitor, Visitor.Visitor, Visitor.Visitor]
 */
-*/
 ```
 
 [回到顶部](#jump)
